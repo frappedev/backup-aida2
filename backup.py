@@ -48,7 +48,7 @@ os.makedirs(f"{DOWNLOADS_DIR}/s3", exist_ok=True)
 # 1. clone repo (move app and api folder into backup/codebase)
 logger.info(
     'Cloning codebase, please wait, it takes time, we are working on big project! 😉')
-# Repo.clone_from('https://github.com/singhhrpreet/aida-2.0.git', CODEBASE_DIR)
+Repo.clone_from('https://github.com/singhhrpreet/aida-2.0.git', CODEBASE_DIR)
 
 # 2. export sql database and move file into backup/sql_export
 logger.info('Exporting Database')
@@ -57,10 +57,9 @@ os.system(export_cmd)
 
 # 3. backup files from cloudinary and S3 bucket.
 logger.info('Backing up cloudinary resources')
+
 cloudinary_dir = f"{DOWNLOADS_DIR}/cloudinary"
-
 os.chdir(cloudinary_dir)
-
 remote_cloudinary_dir = input(
     'Enter cloudinary directory name(if any, else whole cloudinary account resources will be downloaded): ') or '/'
 os.system(f"cld sync --pull {cloudinary_dir} {remote_cloudinary_dir}")
@@ -68,7 +67,13 @@ os.system(f"cld sync --pull {cloudinary_dir} {remote_cloudinary_dir}")
 logger.info('Backing up S3 bucket')
 s3_dir = f"{DOWNLOADS_DIR}/s3"
 os.chdir(s3_dir)
-os.system(f"aws s3 sync s3://hardevbucketsdf {s3_dir}")
+remote_s3_bucket_url = input(
+    'Enter S3 bucket url(if not passed S3 backup will be skipped): ')
+
+if(remote_s3_bucket_url):
+    os.system(f"aws s3 sync s3://hardevbucketsdf {s3_dir}")
+else:
+    logger.warning('Skipping S3 bucket')
 
 logger.info('Generating zip file')
 os.chdir(CURRENT_FILE_DIR)
